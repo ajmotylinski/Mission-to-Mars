@@ -13,13 +13,15 @@ def scrape_all():
 
     news_title, news_paragraph = mars_news(browser)
 
+
     # Run all scraping functions and store results in a dictionary
     data = {
         "news_title": news_title,
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
-        "last_modified": dt.datetime.now()
+        "last_modified": dt.datetime.now(),
+        "hemispheres": mars_images(browser)
     }
 
     # Stop webdriver and return data
@@ -101,3 +103,38 @@ if __name__ == "__main__":
 
     # If running as script, print scraped data
     print(scrape_all())
+
+def mars_images(browser):
+    
+
+    url = 'https://marshemispheres.com/'
+
+    browser.visit(url)
+
+    # 2. Create a list to hold the images and titles.
+    hemisphere_image_urls = []
+
+    # 3. Write code to retrieve the image urls and titles for each hemisphere.
+    #Count how many items on the page have div.description a.itemLink.product-item h3
+    hemisphere_links = browser.find_by_css('div.description a.itemLink.product-item h3')
+
+    #Iterate through each link that matches div.description a.itemLink.product-item h3
+    for i in range(len(hemisphere_links)):
+        hemispheres= {}
+        
+        #Click the link to visit the ith item
+        browser.find_by_css('div.description a.itemLink.product-item h3')[i].click()
+        
+        #Gets the link for the image that has the Sample text
+        img_url = browser.links.find_by_text('Sample')['href']
+        
+        #Gets the text for the css that has h2.title attribute
+        title = browser.find_by_css('h2.title').text
+        
+        hemispheres["img_url"] = img_url
+        hemispheres["title"] = title
+        
+        #Append dictionary to hemisphere_image_url list
+        hemisphere_image_urls.append(hemispheres)
+        browser.back()
+    return hemisphere_image_urls
